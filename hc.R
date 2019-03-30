@@ -1,0 +1,31 @@
+# union
+ca_ems <- read.csv("~/Downloads/Data/ca_ems.csv", stringsAsFactors=FALSE)
+fl_ems <- read.csv("~/Downloads/Data/fl_ems.csv", stringsAsFactors=FALSE)
+require(plyr)
+df <- rbind.fill(ca_ems, fl_ems)
+summary(df)
+require(varhandle)
+df$STATE <- ifelse(df$STATE=="CA", 0, 1)
+# date
+require(lubridate)
+df$dayOfWeek <- wday(as.Date(df$INC_DATE,'%m/%d/%Y'))
+df$sin_dayOfWeek <- sin(df$dayOfWeek)
+df$cos_dayOfWeek <- cos(df$dayOfWeek)
+require(timeDate)
+df$isWeekday <- as.numeric(isWeekday(as.Date(df$INC_DATE,'%m/%d/%Y'), wday = 1:5))
+df$month <- month(as.Date(df$INC_DATE,'%m/%d/%Y'))
+df$sin_month <- sin(df$month)
+df$cos_month <- cos(df$month)
+df$ADD_WILD <- ifelse(df$ADD_WILD=="N", 0, 1)
+df$AID <- ifelse(df$AID=="N", 0, 1)
+# time
+df$ALARM_hour <- hour(strptime(df$ALARM, format = "%m/%d/%Y %H:%M"))
+df$ARRIVAL_hour <- hour(strptime(df$ARRIVAL, format = "%m/%d/%Y %H:%M"))
+df$LU_hour <- hour(strptime(df$LU_CLEAR, format = "%m/%d/%Y %H:%M"))
+# interval
+df$diff_ARRIVAL_ALARM <- as.numeric(difftime(strptime(df$ARRIVAL,"%m/%d/%Y %H:%M"), strptime(df$ALARM,"%m/%d/%Y %H:%M")))
+df$diff_LU_CLEAR_ARRIVAL <- as.numeric(difftime(strptime(df$LU_CLEAR,"%m/%d/%Y %H:%M"), strptime(df$ARRIVAL,"%m/%d/%Y %H:%M")))
+
+df$ALARMS <- as.numeric(df$ALARMS)
+df$APP_MOD <- ifelse(df$APP_MOD=="N", 0, 1)
+df$RESOU_AID <- ifelse(df$RESOU_AID=="N", 0, 1)
